@@ -12,6 +12,9 @@ func main() {
 
 	for {
 		os.Stdin.Read(b)
+		if string(b) == "q" {
+			break
+		}
 		fmt.Println(b)
 	}
 
