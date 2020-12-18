@@ -22,7 +22,13 @@ func main() {
 		if string(b) == "q" {
 			break
 		}
-		fmt.Print(b)
+
+		// Skip control characters. ASCII codes 0–31 are all control characters.
+		// 127 is also a control character. 32–126 are all printable.
+		if b[0] < 32 || b[0] > 126 {
+			continue
+		}
+		fmt.Print(string(b))
 	}
 
 }
