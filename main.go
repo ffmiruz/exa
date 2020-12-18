@@ -17,6 +17,7 @@ func main() {
 	var b []byte = make([]byte, 1)
 
 	for run := true; run; {
+		refresh()
 		run = processKeyPress(b)
 	}
 }
@@ -48,4 +49,14 @@ func processKeyPress(b []byte) bool {
 func readKey(b []byte) rune {
 	os.Stdin.Read(b)
 	return rune(b[0])
+}
+
+func refresh() {
+
+	// <esc>[2J clear the entire screen
+	fmt.Print("\x1b[2J")
+	// <esc>[1;1H position the cursor to the coordinate (1,1) i.e. top left.
+	// row and column number starts with 1. default argument for H is 1.
+	// <esc>[H is equivalent to <esc>[1;1H
+	fmt.Print("\x1b[H")
 }
