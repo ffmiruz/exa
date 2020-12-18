@@ -59,4 +59,17 @@ func refresh() {
 	// row and column number starts with 1. default argument for H is 1.
 	// <esc>[H is equivalent to <esc>[1;1H
 	fmt.Print("\x1b[H")
+
+	drawRows()
+	// Reposition cursor after draw
+	fmt.Print("\x1b[H")
+}
+
+// Handle drawing each row of the buffer of text being edited.
+// Draws a tilde in each row, which means that row is not part of the file
+// and can’t contain any text.
+func drawRows() {
+	for y := 0; y < 24; y++ {
+		fmt.Print("~\r\n")
+	}
 }
