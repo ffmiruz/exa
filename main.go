@@ -31,6 +31,8 @@ func processKeyPress(b []byte) bool {
 	// By design, CTRL+char ASCII value can be calculated by bitwise-AND
 	// binary 00011111 (0x1f) with char.
 	case ch == 0x1f&'q':
+		// Clear screen on exit.
+		fmt.Print("\x1b[H\x1b[2J")
 		return false
 
 	// Skip control characters. ASCII codes 0–31 are all control characters.
