@@ -20,8 +20,10 @@ func main() {
 	for {
 		os.Stdin.Read(b)
 
-		// ASCII 17 (CTRL + q) as quit
-		if b[0] == 17 {
+		// ASCII 17 (CTRL + q) as quit -> b[0] == 17 .
+		// By design, CTRL+char ASCII value can be calculated by bitwise-AND
+		// binary 00011111 (0x1f) with char.
+		if b[0] == 0x1f&'q' {
 			break
 		}
 		// Skip control characters. ASCII codes 0–31 are all control characters.
