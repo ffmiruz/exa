@@ -19,10 +19,11 @@ func main() {
 
 	for {
 		os.Stdin.Read(b)
-		if string(b) == "q" {
+
+		// ASCII 17 (CTRL + q) as quit
+		if b[0] == 17 {
 			break
 		}
-
 		// Skip control characters. ASCII codes 0–31 are all control characters.
 		// 127 is also a control character. 32–126 are all printable.
 		if b[0] < 32 || b[0] > 126 {
