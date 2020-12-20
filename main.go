@@ -84,11 +84,13 @@ func refresh(editor *Editor) {
 // Draws a tilde in each row, which means that row is not part of the file
 // and can’t contain any text.
 func drawRows(editor *Editor) {
+	// the screen buffer string
+	var screen string
 	for y := 0; y < editor.wy; y++ {
-		fmt.Print("~")
-
+		screen += "~"
 		if y < editor.wy-1 {
-			fmt.Print("\r\n")
+			screen += "\r\n"
 		}
 	}
+	fmt.Print(screen)
 }
