@@ -6,6 +6,11 @@ import (
 	"os"
 )
 
+// Editor global state. For now hold terminal size
+type Editor struct {
+	wx, wy int
+}
+
 func main() {
 	oldState, err := term.MakeRaw(0)
 	if err != nil {
@@ -16,8 +21,17 @@ func main() {
 	// Buffer to store input
 	var b []byte = make([]byte, 1)
 
+	wx, wy, err := term.GetSize(0)
+	if err != nil {
+		panic(err)
+	}
+	editor := &Editor{
+		wx: wx,
+		wy: wy,
+	}
+
 	for run := true; run; {
-		refresh()
+		refresh(editor)
 		run = processKeyPress(b)
 	}
 }
@@ -42,7 +56,7 @@ func processKeyPress(b []byte) bool {
 	case ch == 127:
 		break
 	default:
-		fmt.Print(string(b))
+
 	}
 	return true
 }
@@ -53,8 +67,7 @@ func readKey(b []byte) rune {
 	return rune(b[0])
 }
 
-func refresh() {
-
+func refresh(editor *Editor) {
 	// <esc>[2J clear the entire screen
 	fmt.Print("\x1b[2J")
 	// <esc>[1;1H position the cursor to the coordinate (1,1) i.e. top left.
@@ -62,7 +75,7 @@ func refresh() {
 	// <esc>[H is equivalent to <esc>[1;1H
 	fmt.Print("\x1b[H")
 
-	drawRows()
+	drawRows(editor)
 	// Reposition cursor after draw
 	fmt.Print("\x1b[H")
 }
@@ -70,8 +83,8 @@ func refresh() {
 // Handle drawing each row of the buffer of text being edited.
 // Draws a tilde in each row, which means that row is not part of the file
 // and can’t contain any text.
-func drawRows() {
-	for y := 0; y < 24; y++ {
+func drawRows(editor *Editor) {
+	for y := 0; y < editor.wy; y++ {
 		fmt.Print("~\r\n")
 	}
 }
