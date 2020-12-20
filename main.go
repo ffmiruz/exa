@@ -68,6 +68,8 @@ func readKey(b []byte) rune {
 }
 
 func refresh(editor *Editor) {
+	// Hide cursor
+	fmt.Print("\x1b[?25l")
 	// <esc>[2J clear the entire screen
 	fmt.Print("\x1b[2J")
 	// <esc>[1;1H position the cursor to the coordinate (1,1) i.e. top left.
@@ -78,6 +80,8 @@ func refresh(editor *Editor) {
 	drawRows(editor)
 	// Reposition cursor after draw
 	fmt.Print("\x1b[H")
+	// Unhide cursor
+	fmt.Print("\x1b[?25h")
 }
 
 // Handle drawing each row of the buffer of text being edited.
