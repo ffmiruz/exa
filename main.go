@@ -85,6 +85,10 @@ func refresh(editor *Editor) {
 // and can’t contain any text.
 func drawRows(editor *Editor) {
 	for y := 0; y < editor.wy; y++ {
-		fmt.Print("~\r\n")
+		fmt.Print("~")
+
+		if y < editor.wy-1 {
+			fmt.Print("\r\n")
+		}
 	}
 }
