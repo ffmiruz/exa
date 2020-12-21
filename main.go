@@ -70,8 +70,6 @@ func readKey(b []byte) rune {
 func refresh(editor *Editor) {
 	// Hide cursor
 	fmt.Print("\x1b[?25l")
-	// <esc>[2J clear the entire screen
-	fmt.Print("\x1b[2J")
 	// <esc>[1;1H position the cursor to the coordinate (1,1) i.e. top left.
 	// row and column number starts with 1. default argument for H is 1.
 	// <esc>[H is equivalent to <esc>[1;1H
@@ -92,6 +90,8 @@ func drawRows(editor *Editor) {
 	var screen string
 	for y := 0; y < editor.wy; y++ {
 		screen += "~"
+		// Clear line. <esc>[K clear from cursor the end of line.
+		screen += "\x1b[K"
 		if y < editor.wy-1 {
 			screen += "\r\n"
 		}
