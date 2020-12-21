@@ -89,7 +89,17 @@ func drawRows(editor *Editor) {
 	// the screen buffer string
 	var screen string
 	for y := 0; y < editor.wy; y++ {
-		screen += "~"
+		// Display message a third down the screen.
+		if y == editor.wy/3 {
+			message := "Welcome to this stupid text editor :)"
+			screen += message
+			// Truncate too long message.
+			if len(message) > editor.wx {
+				screen = screen[:editor.wx]
+			}
+		} else {
+			screen += "~"
+		}
 		// Clear line. <esc>[K clear from cursor the end of line.
 		screen += "\x1b[K"
 		if y < editor.wy-1 {
