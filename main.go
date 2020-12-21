@@ -92,11 +92,20 @@ func drawRows(editor *Editor) {
 		// Display message a third down the screen.
 		if y == editor.wy/3 {
 			message := "Welcome to this stupid text editor :)"
-			screen += message
 			// Truncate too long message.
 			if len(message) > editor.wx {
 				screen = screen[:editor.wx]
 			}
+			// Center the message. Divide the screen width by half and
+			// subtract half of the stringth length to get padding size.
+			padding := (editor.wx - len(message)) / 2
+			// Pad with "~" followed by space
+			screen += "~"
+			for i := 1; i <= padding; i++ {
+				screen += " "
+			}
+			screen += message
+
 		} else {
 			screen += "~"
 		}
