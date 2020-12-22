@@ -72,6 +72,10 @@ func readKey(b []byte) rune {
 	// Pressing the Escape key, the [ key, and Shift+C in sequence really fast,
 	// and may be interpreted as the right arrow key being pressed.
 	if b[0] == 0x1b {
+		// Case ESCAPE key pressed instead of control character
+		if b[1] != '[' {
+			return 0x1b
+		}
 		if b[2] == 'A' {
 			return 'w'
 		}
