@@ -22,6 +22,8 @@ const (
 	ARW_UP
 	ARW_RIGHT
 	ARW_DOWN
+	PG_UP
+	PG_DOWN
 )
 
 func main() {
@@ -63,8 +65,19 @@ func (ed *Editor) processKeyPress(b []byte) bool {
 		// Clear screen on exit.
 		fmt.Print("\x1b[H\x1b[2J")
 		return false
-	case ch == ARW_UP || ch == ARW_DOWN || ch == ARW_RIGHT || ch == ARW_LEFT:
+	case ch == ARW_UP, ch == ARW_DOWN, ch == ARW_RIGHT, ch == ARW_LEFT:
 		ed.moveCursor(ch)
+		break
+	// Move cursor by screen-height times
+	case ch == PG_UP:
+		for i := 0; i <= ed.height; i++ {
+			ed.moveCursor(ARW_UP)
+		}
+		break
+	case ch == PG_DOWN:
+		for i := 0; i <= ed.height; i++ {
+			ed.moveCursor(ARW_DOWN)
+		}
 		break
 	// Skip control characters. ASCII codes 0–31 are all control characters.
 	// 127 is also a control character. 32–126 are all printable.
@@ -90,18 +103,31 @@ func readKey(b []byte) EdKey {
 		if b[1] != '[' {
 			return EdKey(0x1b)
 		}
-		if b[2] == 'A' {
+
+		if b[2] >= '0' && b[2] <= '9' {
+			// Page Up <esc>[5~ and Page Down <esc>[6~ .
+			if b[3] == '~' {
+				switch b[2] {
+				case '5':
+					return PG_UP
+				case '6':
+					return PG_DOWN
+				}
+			}
+
+		}
+		switch b[2] {
+		// Arrow keys set
+		case 'A':
 			return ARW_UP
-		}
-		if b[2] == 'B' {
+		case 'B':
 			return ARW_DOWN
-		}
-		if b[2] == 'C' {
+		case 'C':
 			return ARW_RIGHT
-		}
-		if b[2] == 'D' {
+		case 'D':
 			return ARW_LEFT
 		}
+
 	}
 	return EdKey(b[0])
 }
