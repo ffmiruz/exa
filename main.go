@@ -21,7 +21,7 @@ func main() {
 	defer term.Restore(0, oldState)
 
 	// Buffer to store input
-	var b []byte = make([]byte, 4)
+	b := make([]byte, 4)
 
 	width, height, err := term.GetSize(0)
 	if err != nil {
@@ -41,6 +41,9 @@ func main() {
 // Handle keypress event
 func (ed *Editor) processKeyPress(b []byte) bool {
 	ch := readKey(b)
+	// Set to null to prevent ESCAPE key interpreted as control char if pressed
+	// immediately after a control char. Remove ']' from b[1]
+	b[1] = '\x00'
 	switch {
 	// ASCII 17 (CTRL + q) as quit -> b[0] == 17 .
 	// By design, CTRL+char ASCII value can be calculated by bitwise-AND
