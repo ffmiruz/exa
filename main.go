@@ -13,6 +13,17 @@ type Editor struct {
 	cx, cy int
 }
 
+type EdKey int
+
+// Alias for non-ASCII character.
+// Start with a large to prevent conflict with regular key.
+const (
+	ARW_LEFT EdKey = iota + 1000
+	ARW_UP
+	ARW_RIGHT
+	ARW_DOWN
+)
+
 func main() {
 	oldState, err := term.MakeRaw(0)
 	if err != nil {
@@ -52,7 +63,7 @@ func (ed *Editor) processKeyPress(b []byte) bool {
 		// Clear screen on exit.
 		fmt.Print("\x1b[H\x1b[2J")
 		return false
-	case ch == 'w' || ch == 'a' || ch == 's' || ch == 'd':
+	case ch == ARW_UP || ch == ARW_DOWN || ch == ARW_RIGHT || ch == ARW_LEFT:
 		ed.moveCursor(ch)
 		break
 	// Skip control characters. ASCII codes 0–31 are all control characters.
@@ -68,7 +79,7 @@ func (ed *Editor) processKeyPress(b []byte) bool {
 }
 
 // Wait for a keypress and return its value
-func readKey(b []byte) rune {
+func readKey(b []byte) EdKey {
 	os.Stdin.Read(b)
 	// Check for control character. e.g \x1b[A for arrow up.
 	// If found escape character consume the first 2 bytes and inspect the 3rd.
@@ -77,22 +88,22 @@ func readKey(b []byte) rune {
 	if b[0] == 0x1b {
 		// Case ESCAPE key pressed instead of control character
 		if b[1] != '[' {
-			return 0x1b
+			return EdKey(0x1b)
 		}
 		if b[2] == 'A' {
-			return 'w'
+			return ARW_UP
 		}
 		if b[2] == 'B' {
-			return 's'
+			return ARW_DOWN
 		}
 		if b[2] == 'C' {
-			return 'd'
+			return ARW_RIGHT
 		}
 		if b[2] == 'D' {
-			return 'a'
+			return ARW_LEFT
 		}
 	}
-	return rune(b[0])
+	return EdKey(b[0])
 }
 
 func (ed *Editor) refresh() {
@@ -147,24 +158,24 @@ func (ed *Editor) drawRows() {
 	fmt.Print(screen)
 }
 
-func (ed *Editor) moveCursor(ch rune) {
+func (ed *Editor) moveCursor(ch EdKey) {
 	switch ch {
-	case 'a':
+	case ARW_LEFT:
 		if ed.cx == 0 {
 			return
 		}
 		ed.cx--
-	case 'd':
+	case ARW_RIGHT:
 		if ed.cx == ed.width-1 {
 			return
 		}
 		ed.cx++
-	case 'w':
+	case ARW_UP:
 		if ed.cy == 0 {
 			return
 		}
 		ed.cy--
-	case 's':
+	case ARW_DOWN:
 		if ed.cy == ed.height-1 {
 			return
 		}
