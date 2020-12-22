@@ -8,7 +8,7 @@ import (
 
 // Editor global state. For now hold terminal size
 type Editor struct {
-	wx, wy int
+	width, height int
 	// Cursor position
 	cx, cy int
 }
@@ -23,23 +23,23 @@ func main() {
 	// Buffer to store input
 	var b []byte = make([]byte, 1)
 
-	wx, wy, err := term.GetSize(0)
+	width, height, err := term.GetSize(0)
 	if err != nil {
 		panic(err)
 	}
-	editor := &Editor{
-		wx: wx,
-		wy: wy,
+	ed := &Editor{
+		width:  width,
+		height: height,
 	}
 
 	for run := true; run; {
-		refresh(editor)
-		run = processKeyPress(editor, b)
+		ed.refresh()
+		run = ed.processKeyPress(b)
 	}
 }
 
 // Handle keypress event
-func processKeyPress(ed *Editor, b []byte) bool {
+func (ed *Editor) processKeyPress(b []byte) bool {
 	ch := readKey(b)
 	switch {
 	// ASCII 17 (CTRL + q) as quit -> b[0] == 17 .
@@ -70,7 +70,7 @@ func readKey(b []byte) rune {
 	return rune(b[0])
 }
 
-func refresh(editor *Editor) {
+func (ed *Editor) refresh() {
 	// Hide cursor
 	fmt.Print("\x1b[?25l")
 	// <esc>[1;1H position the cursor to the coordinate (1,1) i.e. top left.
@@ -78,10 +78,10 @@ func refresh(editor *Editor) {
 	// <esc>[H is equivalent to <esc>[1;1H
 	fmt.Print("\x1b[H")
 
-	drawRows(editor)
+	ed.drawRows()
 
 	// Reposition cursor after draw. Note: terminal coordinate is index 1
-	fmt.Print("\x1b[", editor.cy+1, ";", editor.cx+1, "H")
+	fmt.Print("\x1b[", ed.cy+1, ";", ed.cx+1, "H")
 	// Unhide cursor
 	fmt.Print("\x1b[?25h")
 }
@@ -89,20 +89,20 @@ func refresh(editor *Editor) {
 // Handle drawing each row of the buffer of text being edited.
 // Draws a tilde in each row, which means that row is not part of the file
 // and can’t contain any text.
-func drawRows(editor *Editor) {
+func (ed *Editor) drawRows() {
 	// the screen buffer string
 	var screen string
-	for y := 0; y < editor.wy; y++ {
+	for y := 0; y < ed.height; y++ {
 		// Display message a third down the screen.
-		if y == editor.wy/3 {
+		if y == ed.height/3 {
 			message := "Welcome to this stupid text editor :)"
 			// Truncate too long message.
-			if len(message) > editor.wx {
-				screen = screen[:editor.wx]
+			if len(message) > ed.width {
+				screen = screen[:ed.width]
 			}
 			// Center the message. Divide the screen width by half and
 			// subtract half of the stringth length to get padding size.
-			padding := (editor.wx - len(message)) / 2
+			padding := (ed.width - len(message)) / 2
 			// Pad with "~" followed by space
 			screen += "~"
 			for i := 1; i <= padding; i++ {
@@ -115,7 +115,7 @@ func drawRows(editor *Editor) {
 		}
 		// Clear line. <esc>[K clear from cursor the end of line.
 		screen += "\x1b[K"
-		if y < editor.wy-1 {
+		if y < ed.height-1 {
 			screen += "\r\n"
 		}
 	}
