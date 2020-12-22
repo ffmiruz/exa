@@ -9,6 +9,8 @@ import (
 // Editor global state. For now hold terminal size
 type Editor struct {
 	wx, wy int
+	// Cursor position
+	cx, cy int
 }
 
 func main() {
@@ -32,15 +34,14 @@ func main() {
 
 	for run := true; run; {
 		refresh(editor)
-		run = processKeyPress(b)
+		run = processKeyPress(editor, b)
 	}
 }
 
 // Handle keypress event
-func processKeyPress(b []byte) bool {
-
-	switch ch := readKey(b); {
-
+func processKeyPress(ed *Editor, b []byte) bool {
+	ch := readKey(b)
+	switch {
 	// ASCII 17 (CTRL + q) as quit -> b[0] == 17 .
 	// By design, CTRL+char ASCII value can be calculated by bitwise-AND
 	// binary 00011111 (0x1f) with char.
@@ -48,7 +49,9 @@ func processKeyPress(b []byte) bool {
 		// Clear screen on exit.
 		fmt.Print("\x1b[H\x1b[2J")
 		return false
-
+	case ch == 'w' || ch == 'a' || ch == 's' || ch == 'd':
+		ed.moveCursor(ch)
+		break
 	// Skip control characters. ASCII codes 0–31 are all control characters.
 	// 127 is also a control character. 32–126 are all printable.
 	case ch < 32:
@@ -76,8 +79,9 @@ func refresh(editor *Editor) {
 	fmt.Print("\x1b[H")
 
 	drawRows(editor)
-	// Reposition cursor after draw
-	fmt.Print("\x1b[H")
+
+	// Reposition cursor after draw. Note: terminal coordinate is index 1
+	fmt.Print("\x1b[", editor.cy+1, ";", editor.cx+1, "H")
 	// Unhide cursor
 	fmt.Print("\x1b[?25h")
 }
@@ -116,4 +120,18 @@ func drawRows(editor *Editor) {
 		}
 	}
 	fmt.Print(screen)
+}
+
+func (ed *Editor) moveCursor(ch rune) {
+	switch ch {
+	case 'a':
+		ed.cx--
+	case 'd':
+		ed.cx++
+	case 'w':
+		ed.cy--
+	case 's':
+		ed.cy++
+	}
+
 }
