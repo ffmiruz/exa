@@ -147,12 +147,24 @@ func (ed *Editor) drawRows() {
 func (ed *Editor) moveCursor(ch rune) {
 	switch ch {
 	case 'a':
+		if ed.cx == 0 {
+			return
+		}
 		ed.cx--
 	case 'd':
+		if ed.cx == ed.width-1 {
+			return
+		}
 		ed.cx++
 	case 'w':
+		if ed.cy == 0 {
+			return
+		}
 		ed.cy--
 	case 's':
+		if ed.cy == ed.height-1 {
+			return
+		}
 		ed.cy++
 	}
 }
