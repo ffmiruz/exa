@@ -67,6 +67,24 @@ func (ed *Editor) processKeyPress(b []byte) bool {
 // Wait for a keypress and return its value
 func readKey(b []byte) rune {
 	os.Stdin.Read(b)
+	// Check for control character. e.g \x1b[A for arrow up.
+	// If found escape character consume the first 2 bytes and inspect the 3rd.
+	if b[0] == 0x1b {
+		os.Stdin.Read(b)
+		os.Stdin.Read(b)
+		if b[0] == 'A' {
+			return 'w'
+		}
+		if b[0] == 'B' {
+			return 's'
+		}
+		if b[0] == 'C' {
+			return 'd'
+		}
+		if b[0] == 'D' {
+			return 'a'
+		}
+	}
 	return rune(b[0])
 }
 
