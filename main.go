@@ -21,7 +21,7 @@ func main() {
 	defer term.Restore(0, oldState)
 
 	// Buffer to store input
-	var b []byte = make([]byte, 1)
+	var b []byte = make([]byte, 4)
 
 	width, height, err := term.GetSize(0)
 	if err != nil {
@@ -69,19 +69,19 @@ func readKey(b []byte) rune {
 	os.Stdin.Read(b)
 	// Check for control character. e.g \x1b[A for arrow up.
 	// If found escape character consume the first 2 bytes and inspect the 3rd.
+	// Pressing the Escape key, the [ key, and Shift+C in sequence really fast,
+	// and may be interpreted as the right arrow key being pressed.
 	if b[0] == 0x1b {
-		os.Stdin.Read(b)
-		os.Stdin.Read(b)
-		if b[0] == 'A' {
+		if b[2] == 'A' {
 			return 'w'
 		}
-		if b[0] == 'B' {
+		if b[2] == 'B' {
 			return 's'
 		}
-		if b[0] == 'C' {
+		if b[2] == 'C' {
 			return 'd'
 		}
-		if b[0] == 'D' {
+		if b[2] == 'D' {
 			return 'a'
 		}
 	}
@@ -151,5 +151,4 @@ func (ed *Editor) moveCursor(ch rune) {
 	case 's':
 		ed.cy++
 	}
-
 }
